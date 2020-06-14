@@ -1,11 +1,14 @@
 <?php
+// TODO: does it make sense to keep timezone information?
 date_default_timezone_set('UTC');
 
 $db = new PDO('sqlite:' . $_SERVER['HOME'] . '/Library/Messages/chat.db');
 
 $keys = array_keys(load_contacts());
+// 'You' will be the first contact in the list.
 $me = array_shift($keys);
 
+// Load contacts from a file 'contacts.txt' in format '[number/email] [name]'.
 function load_contacts() {
   static $data;
   if(!isset($data)) {
@@ -18,6 +21,7 @@ function load_contacts() {
   return $data;
 }
 
+// Get a contact link for for a certain ID (number/email).
 function contact($id) {
   $data = load_contacts();
 
@@ -34,6 +38,7 @@ function contact($id) {
   }
 }
 
+// Get the contact name for for a certain ID (number/email).
 function contact_name($id) {
   $data = load_contacts();
   if(array_key_exists($id, $data)) {
@@ -43,6 +48,11 @@ function contact_name($id) {
   }
 }
 
+// Get all messages from a certain timestamp onwards.
+// This could be used to resume archival.
+// Returns for each message (id, timestamp, text, is_from_me, contact).
+// Here 'is_from_me' is a 0/1 boolean indicating sent or recieved message,
+// and contact is a numerical ID (from the 'handle' table). 
 function query_messages_since(&$db, $timestamp) {
   return $db->query('SELECT message.ROWID, substr(date,1,9)+978307200 AS date, 
     message.text, is_from_me, handle.id AS contact
@@ -54,16 +64,22 @@ function query_messages_since(&$db, $timestamp) {
   ');
 }
 
+// Gets the file in which a message is to be stored
+// (i.e. '[contact]/[year]-[month].html').
 function filename_for_message($contact, $ts) {
   $folder = contact_name($contact);
   return 'messages/' . $folder . '/' . date('Y-m', $ts) . '.html';
 }
 
+// Gets the folder in which an attachment is to be stored
+// (i.e. '[contact]/[year]-[month]/').
 function attachment_folder($contact, $ts, $relative=false) {
   $folder = contact_name($contact);
   return ($relative ? '' : 'messages/' . $folder . '/') . date('Y-m', $ts) . '/';
 }
 
+// Format a line describing a message for output to the html file.
+// TODO: embed non-image attachments properly.
 function format_line($line, $attachments) {
   global $me;
 
@@ -89,12 +105,16 @@ function format_line($line, $attachments) {
     . '</div>';
 }
 
+// Check whether the given message is already archived (identically).
+// Used to prevent (identical) duplicates.
 function entry_exists($line, $attachments, $fn) {
   if(!file_exists($fn)) return false;
   $file = file_get_contents($fn);
   return strpos($file, format_line($line, $attachments)) !== false;
 }
 
+// Outputs the header for the html files.
+// TODO: write CSS style to separate file and include.
 function html_template() {
   ob_start();
 ?>
