@@ -2,8 +2,13 @@
 chdir(dirname(__FILE__));
 include('include.php');
 
-// TODO: set via argument flag (-v or something).
-$print_output = true;
+$opt = getopt(
+  "v",
+  ["verbose"]
+);
+
+$print_output = array_key_exists("v", $opt) ||
+                array_key_exists("verbose", $opt);
 
 $last_fn = dirname(__FILE__).'/last.txt';
 if(file_exists($last_fn)) {
