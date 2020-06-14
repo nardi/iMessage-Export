@@ -79,7 +79,6 @@ function attachment_folder($contact, $ts, $relative=false) {
 }
 
 // Format a line describing a message for output to the html file.
-// TODO: embed non-image attachments properly.
 function format_line($line, $attachments) {
   global $me;
 
@@ -92,7 +91,9 @@ function format_line($line, $attachments) {
 
   if(count($attachments)) {
     foreach($attachments as $at) {
-      $imgsrc = attachment_folder($line['contact'], $line['date'], true) . $at['transfer_name'];
+      $imgsrc = attachment_folder($line['contact'], $line['date'], true) .
+        ($at['ROWID'] . '_' . $at['transfer_name']);
+      // TODO: embed non-image attachments properly.
       $attachments_html .= '<img src="' . $imgsrc . '" class="u-photo">';
     }
   }

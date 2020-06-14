@@ -68,10 +68,9 @@ while(!$quit && $line = $query->fetch(PDO::FETCH_ASSOC)) {
     }
 
     // Copy attachments to archive.
-    // TODO: Rename duplicate attachments, especially 'Audio-Message.amr'.
-    //       Maybe append GUID/ID to file name?
     foreach($attachments as $at) {
-      $imgsrc = attachment_folder($line['contact'], $line['date']) . $at['transfer_name'];
+      $imgsrc = attachment_folder($line['contact'], $line['date']) .
+        ($at['ROWID'] . '_' . $at['transfer_name']);
       if(!file_exists(dirname($imgsrc))) 
         mkdir(dirname($imgsrc));
       copy(str_replace('~/',$_SERVER['HOME'].'/',$at['filename']), $imgsrc);
