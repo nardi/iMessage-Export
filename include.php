@@ -115,30 +115,12 @@ function entry_exists($line, $attachments, $fn) {
 }
 
 // Outputs the header for the html files.
-// TODO: write CSS style to separate file and include.
 function html_template() {
   ob_start();
 ?>
 <!DOCTYPE html>
 <meta charset="utf-8">
-<style type="text/css">
-body {
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-size: 14px;
-  padding: 10px;
-}
-.h-entry {
-  padding: 8px;
-}
-.h-entry:nth-of-type(2n+1) {
-  background-color: #eee;
-}
-img {
-  max-width: 600px;
-  max-height: 600px;
-  display: block;
-}
-</style>
+<link type="text/css" rel="stylesheet" href="../style.css">
 <?php
   return ob_get_clean();
 }

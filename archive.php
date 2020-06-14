@@ -10,6 +10,9 @@ $opt = getopt(
 $print_output = array_key_exists("v", $opt) ||
                 array_key_exists("verbose", $opt);
 
+// TODO: Set via optional argument.
+$message_dir = 'messages/';
+
 $last_fn = dirname(__FILE__).'/last.txt';
 if(file_exists($last_fn)) {
   $last = file_get_contents($last_fn);
@@ -24,6 +27,16 @@ echo "Ready to archive messages. Press q once to pause or twice to quit.
   When running this file after quitting or finishing archival will resume
   from the next message. Press enter to start.\n";
 fgets(STDIN);
+
+// Create 'messages' directory if necessary.
+if(!file_exists($message_dir)) {
+  mkdir(dirname($fn));
+}
+
+// Copy stylesheet if necessary.
+if(!file_exists($message_dir . 'style.css')) {
+  copy('default-style.css', $message_dir . 'style.css');
+}
 
 $quit = false;
 while(!$quit && $line = $query->fetch(PDO::FETCH_ASSOC)) {
