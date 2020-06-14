@@ -94,25 +94,35 @@ function format_line($line, $attachments) {
       $src = attachment_folder($line['contact'], $line['date'], true) .
         ($at['ROWID'] . '_' . $at['transfer_name']);
       $type = reset(explode('/', $at['mime_type'], 1));
-      // TODO: add tags for video/audio.
+
+      $default_html = '<br>Attachment: <a href="' . $src . '">' .
+        $at['transfer_name'] . '</a>';
+
       switch ($type) {
         case 'image':
           $attachments_html .= '<img src="' . $src . '" class="u-photo">';
           break;
+        case 'audio':
+          $attachments_html .= '<audio controls src="' . $src . '" class="u-audio">' .
+            $default_html . '</audio>';
+          break;
+        case 'video':
+          $attachments_html .= '<video controls src="' . $src . '" class="u-video">' .
+            $default_html . '</video>';
+          break;
         default:
-          $attachments_html .= 'Attachment: <a href="' . $src . '">' .
-            $at['transfer_name'] . '</a>';
+          $attachments_html .= $default_html;
           break;
       }
-      
     }
   }
 
   return '<div class="h-entry">'
     . '<time class="dt-published" datetime="' . date('c', $line['date']) . '">' . date('Y-m-d H:i:s', $line['date']) . '</time> '
     . contact($contact)
-    . ' <span class="e-content p-name">' . htmlentities(trim($line['text'])) . '</span>'
+    . ' <span class="e-content p-name">' . htmlentities(trim($line['text']))
     . $attachments_html
+    . '</span>'
     . '</div>';
 }
 
