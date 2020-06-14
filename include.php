@@ -91,10 +91,20 @@ function format_line($line, $attachments) {
 
   if(count($attachments)) {
     foreach($attachments as $at) {
-      $imgsrc = attachment_folder($line['contact'], $line['date'], true) .
+      $src = attachment_folder($line['contact'], $line['date'], true) .
         ($at['ROWID'] . '_' . $at['transfer_name']);
-      // TODO: embed non-image attachments properly.
-      $attachments_html .= '<img src="' . $imgsrc . '" class="u-photo">';
+      $type = reset(explode('/', $at['mime_type'], 1));
+      // TODO: add tags for video/audio.
+      switch ($type) {
+        case 'image':
+          $attachments_html .= '<img src="' . $src . '" class="u-photo">';
+          break;
+        default:
+          $attachments_html .= 'Attachment: <a href="' . $src . '">' .
+            $at['transfer_name'] . '</a>';
+          break;
+      }
+      
     }
   }
 
