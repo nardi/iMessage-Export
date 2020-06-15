@@ -1,17 +1,19 @@
 <?php
 chdir(dirname(__FILE__));
-include('include.php');
 
+// Argument parsing and checking.
 $opt = getopt(
-  "v",
-  ["verbose"]
+  "vo",
+  ["verbose", "output"]
 );
 
 $print_output = array_key_exists("v", $opt) ||
                 array_key_exists("verbose", $opt);
 
-// TODO: Set via optional argument.
-$message_dir = 'messages/';
+$message_dir = ($opt['o'] ?? $opt['output'] ?? 'messages') . '/';
+
+// Most important code is contained in include.php.
+include 'include.php';
 
 $last_fn = dirname(__FILE__).'/last.txt';
 if(file_exists($last_fn)) {

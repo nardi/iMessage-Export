@@ -69,15 +69,17 @@ function query_messages_since(&$db, $timestamp) {
 // Gets the file in which a message is to be stored
 // (i.e. '[contact]/[year]-[month].html').
 function filename_for_message($contact, $ts) {
+  global $message_dir;
   $folder = contact_name($contact);
-  return 'messages/' . $folder . '/' . date('Y-m', $ts) . '.html';
+  return $message_dir . $folder . '/' . date('Y-m', $ts) . '.html';
 }
 
 // Gets the folder in which an attachment is to be stored
 // (i.e. '[contact]/[year]-[month]/').
 function attachment_folder($contact, $ts, $relative=false) {
+  global $message_dir;
   $folder = contact_name($contact);
-  return ($relative ? '' : 'messages/' . $folder . '/') . date('Y-m', $ts) . '/';
+  return ($relative ? '' : $message_dir . $folder . '/') . date('Y-m', $ts) . '/';
 }
 
 // Format a line describing a message for output to the html file.
