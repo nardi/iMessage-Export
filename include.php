@@ -54,10 +54,12 @@ function contact_name($id) {
 // Here 'is_from_me' is a 0/1 boolean indicating sent or recieved message,
 // and contact is a numerical ID (from the 'handle' table). 
 function query_messages_since(&$db, $timestamp) {
-  return $db->query('SELECT message.ROWID, substr(date,1,9)+978307200 AS date, 
-    message.text, is_from_me, handle.id AS contact
-  FROM message
-  LEFT JOIN handle ON message.handle_id = handle.ROWID
+  return $db->query('SELECT m.ROWID, substr(date,1,9)+978307200 AS date,
+    m.text, is_from_me, h.id AS contact
+  FROM message m
+    LEFT JOIN chat_message_join cm ON cm.message_id = m.ROWID
+    LEFT JOIN chat_handle_join ch ON ch.chat_id = cm.chat_id
+    LEFT JOIN handle h ON h.ROWID = ch.handle_id
   WHERE cache_roomnames IS NULL
     AND substr(date,1,9)+978307200 > ' . $timestamp . '
   ORDER BY date
