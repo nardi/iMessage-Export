@@ -5,7 +5,7 @@ include 'stdin.php';
 // Argument parsing and checking.
 $opt = getopt(
   "vo:",
-  ["verbose", "output:"]
+  ["verbose", "output:", "r"]
 );
 
 $print_output = array_key_exists("v", $opt) ||
@@ -20,7 +20,7 @@ if ($print_output)
 // Most important code is contained in include.php.
 include 'include.php';
 
-$last_fn = dirname(__FILE__).'/last.txt';
+$last_fn = $message_dir . 'last_message_saved.txt';
 if(file_exists($last_fn)) {
   $last = file_get_contents($last_fn);
 } else {
