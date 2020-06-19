@@ -97,7 +97,7 @@ function format_line($line, $attachments) {
     foreach($attachments as $at) {
       $src = attachment_folder($line['contact'], $line['date'], true) .
         ($at['ROWID'] . '_' . $at['transfer_name']);
-      $type = reset(explode('/', $at['mime_type'], 1));
+      $type = reset(explode('/', $at['mime_type'], 2));
 
       $default_html = '<br>Attachment: <a href="' . $src . '">' .
         $at['transfer_name'] . '</a>';
@@ -107,6 +107,9 @@ function format_line($line, $attachments) {
           $attachments_html .= '<img src="' . $src . '" class="u-photo">';
           break;
         case 'audio':
+        // TODO: AMR files cannot be played in HTML audio element,
+        //       so this is often useless. Either include a separate AMR player,
+        //       or convert the audio files during archival (not preferred).
           $attachments_html .= '<audio controls src="' . $src . '" class="u-audio">' .
             $default_html . '</audio>';
           break;
@@ -148,3 +151,4 @@ function html_template() {
 <?php
   return ob_get_clean();
 }
+

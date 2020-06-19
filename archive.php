@@ -1,16 +1,21 @@
 <?php
 chdir(dirname(__FILE__));
+include 'stdin.php';
 
 // Argument parsing and checking.
 $opt = getopt(
-  "vo",
-  ["verbose", "output"]
+  "vo:",
+  ["verbose", "output:"]
 );
 
 $print_output = array_key_exists("v", $opt) ||
                 array_key_exists("verbose", $opt);
+if ($print_output)
+  echo "Giving verbose output.\n";
 
 $message_dir = ($opt['o'] ?? $opt['output'] ?? 'messages') . '/';
+if ($print_output)
+  echo "Saving messages to '" . $message_dir . "'.\n";
 
 // Most important code is contained in include.php.
 include 'include.php';
@@ -25,14 +30,17 @@ if(file_exists($last_fn)) {
 $query = query_messages_since($db, $last);
 $last_timestamp = 0;
 
-echo "Ready to archive messages. Press q once to pause or twice to quit.
-  When running this file after quitting or finishing archival will resume
-  from the next message. Press enter to start.\n";
-fgets(STDIN);
+$stdin = fopen('php://stdin', 'r');
+if ($print_output) {
+  echo "Ready to archive messages. Press q once to pause or twice to quit.
+When running this file after quitting or finishing archival will resume
+from the next message. Press enter to start.\n";
+  fgets($stdin);
+}
 
 // Create 'messages' directory if necessary.
 if(!file_exists($message_dir)) {
-  mkdir(dirname($fn));
+  mkdir($message_dir);
 }
 
 // Copy stylesheet if necessary.
@@ -98,13 +106,13 @@ while(!$quit && $line = $query->fetch(PDO::FETCH_ASSOC)) {
   }
 
   // Check whether a button has been pressed.
-  if (stream_select([STDIN], NULL, NULL) > 0) {
-    $pressed = stream_get_contents(STDIN, 1);
+  if (can_read($stdin)) {
+    $pressed = readc($stdin);
     if ($pressed === 'q') {
       $resume = false;
       do {
-        echo "Press q again to quit or r to resume: ";
-        $pressed = stream_get_contents(STDIN, 1);
+        echo "\nPress q again to quit or r to resume: ";
+        $pressed = readc($stdin);
         if ($pressed === 'q') {
           $quit = true;
           break;
@@ -112,7 +120,7 @@ while(!$quit && $line = $query->fetch(PDO::FETCH_ASSOC)) {
           echo "\nResuming.\n";
           break;
         } else {
-          echo "\nUnknown input.\n"
+          echo "\nUnknown input.\n";
         }
       } while(true);
     }
@@ -121,6 +129,8 @@ while(!$quit && $line = $query->fetch(PDO::FETCH_ASSOC)) {
 
 // Write last archived message time to file,
 // so that archival can be resumed for following messages.
-if($last_timestamp > 0)
+if ($last_timestamp > 0) {
+  echo "\nSaving last timestamp.\n";
   file_put_contents($last_fn, $last_timestamp);
+}
 
